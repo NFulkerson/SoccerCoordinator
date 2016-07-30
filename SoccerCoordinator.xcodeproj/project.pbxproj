@@ -15,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D86B7D081D4CCD1200641F9D /* SoccerCoordinator.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SoccerCoordinator.playground; sourceTree = "<group>"; };
 		D8E12B7A1D4CBBB2008FB129 /* SoccerCoordinator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SoccerCoordinator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8E12B7D1D4CBBB2008FB129 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D8E12B7F1D4CBBB2008FB129 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -60,6 +61,7 @@
 				D8E12B841D4CBBB2008FB129 /* Assets.xcassets */,
 				D8E12B861D4CBBB2008FB129 /* LaunchScreen.storyboard */,
 				D8E12B891D4CBBB2008FB129 /* Info.plist */,
+				D86B7D081D4CCD1200641F9D /* SoccerCoordinator.playground */,
 			);
 			path = SoccerCoordinator;
 			sourceTree = "<group>";
@@ -286,6 +288,7 @@
 				D8E12B8E1D4CBBB2008FB129 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
