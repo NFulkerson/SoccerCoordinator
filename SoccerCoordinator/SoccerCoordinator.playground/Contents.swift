@@ -1,10 +1,12 @@
 //: Soccer Coordinator - Evenly distribute pro and rookie players between three teams
-
+import Foundation
 // Create individual collections for Sharks, Raptors, and Dragons
 // Defined as an empty array of dictionaries.
 var sharks:[[String:String]] = []
 var raptors:[[String:String]] = []
 var dragons:[[String:String]] = []
+
+var teams = [sharks, raptors, dragons]
 
 // contains all available players
 // Would be better for items in collection to be Player objects, since
@@ -29,36 +31,39 @@ let league = [
     ["name": "Phillip Helm", "height": "44", "experience": "yes", "guardians": "Thomas Helm and Eva Jones"],
     ["name": "Les Clay", "height": "42", "experience": "yes", "guardians": "Wynonna Brown"],
     ["name": "Herschel Krustofski", "height": "45", "experience": "yes", "guardians": "Hyman and Rachel Krustofski"]
+    // could add some bogus players here to test for more/fewer players
+    // this code still makes some assumptions... an evenly distributed number of experienced vs inexperienced players
+    // and probably that there are no significant differences in average height
+//    ["name": "Arya Stark", "height": "38", "experience": "no", "guardians": "Ned Stark"],
+//    ["name": "Jon Snow", "height": "48", "experience": "yes", "guardians": "Lyanna and Rhaegar Targaryen"],
+//    ["name": "Bran Stark", "height": "38", "experience": "yes", "guardians": "Ned Stark"],
+//    ["name": "Robb Stark", "height": "48", "experience": "no", "guardians": "Catelyn Stark"],
+//    ["name": "Sansa Stark", "height": "40", "experience": "no", "guardians": "Petyr Baelish"],
+//    ["name": "Rickon Stark", "height": "39", "experience": "yes", "guardians": "Asha"]
+    
 ]
 
 let playersCount = league.count
 
 // takes in a collection--either an individual team or the whole league,
 // and returns the average height (in inches)
-func calculateAverageHeight(team: [[String:String]]) -> Int {
-    var sumOfHeights = 0
+// Use a double in order to meet requirements for extra credit
+func calculateAverageHeight(team: [[String:String]]) -> Double {
+    var sumOfHeights = 0.0
     for player in team {
         // We either use if-let syntax or some really ugly forced unwrapping on the optional here
-        // I think this is more readable
         if let height = player["height"] {
-            sumOfHeights += Int(height)! // We have to cast the value as an Int, because all values in the dictionary are stored as strings
-                                         // We could use a Dictionary<String:Any> but I'm not sure if that's allowed for this lesson.
-                                         // Advanced structures would also help with this issue
+            sumOfHeights += Double(height)! // We have to cast the type to Double because height is actually a string
+                                            // We could get around this by making player items Dictionary<String, Any>
+                                            // But I'm not sure if that's allowed for this project
         } else {
             sumOfHeights += 0
         }
     }
     
-    return sumOfHeights / team.count
+    return sumOfHeights / Double(team.count)
 }
 
-// has no return value as it will simply modify our team arrays.
-func sortTeams(players:[[String:String]]) {
-    
-}
-
-// ****HELPERS****
-// These methods are just to handle some logic out of the main flow
 func isExperienced(player:[String:String]) -> Bool {
     if let experience = player["experience"] {
         
@@ -67,18 +72,105 @@ func isExperienced(player:[String:String]) -> Bool {
         }
     }
     // if experience key is nil, or anything else but yes,
-    // w
+    // we return false
     return false
 }
 isExperienced(league[0])
 isExperienced(league[14])
 
+// has no return value as it will simply modify our team arrays.
+func sortTeams(players:[[String:String]]) {
+    // initialize two empty arrays to separate our players into
+    var experiencedPlayers: [[String:String]] = []
+    var inexperiencedPlayers: [[String:String]] = []
+    for player in players {
+        let hasExperience = isExperienced(player)
+        if (hasExperience) {
+            experiencedPlayers.append(player)
+        } else {
+            inexperiencedPlayers.append(player)
+        }
+    }
+    // divide each set of players by the number of teams to ensure it can be evenly assigned
+    if (experiencedPlayers.count % teams.count == 0) {
+        // we don't care about the iterator right now
+        while (!experiencedPlayers.isEmpty && !inexperiencedPlayers.isEmpty) {
+            // this doesn't account for heights so far, but it will evenly distribute teams
+            // there must be a more elegant way of doing this.
+            sharks.append(experiencedPlayers.removeFirst())
+            raptors.append(experiencedPlayers.removeFirst())
+            dragons.append(experiencedPlayers.removeFirst())
+            sharks.append(inexperiencedPlayers.removeFirst())
+            raptors.append(inexperiencedPlayers.removeFirst())
+            dragons.append(inexperiencedPlayers.removeFirst())
+        }
+    } else {
+        print("It seems there isn't an equal number of players...")
+    }
 
-// TODO: Take in an array of teams, and iterate over each team's players
-// creating a take-home letter for each guardian/player
-func finalizeTeams() -> String {
-    return "FINISH ME"
 }
+
+func calculateAverageHeightDifference(team1: [[String:String]], team2: [[String:String]]) -> Double {
+    let teamOneAverage = calculateAverageHeight(team1)
+    let teamTwoAverage = calculateAverageHeight(team2)
+    // we really don't care which team is greater or smaller than the other
+    // only that the difference between the two is greater than 1.5.
+    // If it is, we're just going to swap teammates until the difference is lower
+    // So let's get an absolute value so we don't get negative values
+    return abs(teamOneAverage - teamTwoAverage)
+}
+
+func rearrangeTeamMembers(team1: [[String:String]], team2: [[String:String]]) -> [[[String:String]]] {
+    var teamA = team1
+    var teamB = team2
+    teamB.append(teamA.removeLast())
+    teamA.append(teamB.removeFirst())
+    
+    return [teamA, teamB]
+}
+
+
+// let's make a function similar to the above function
+// then adjusts players until they have an equal number of experienced/inexperienced players
+// AND are within the allowable difference in average height
+func sortTeamsByHeight(players:[[String:String]]) {
+    sortTeams(league)
+    // let's make a condition that is initially true and evaluate it in a while loop..
+    // When it is false, the teams should all be within a 1.5 difference in average height
+    var teamsNotEqual = true
+    while (teamsNotEqual) {
+        let sharkRaptorDif = calculateAverageHeightDifference(sharks, team2: raptors)
+        let sharkDragonDif = calculateAverageHeightDifference(sharks, team2: dragons)
+        let dragonRaptorDif = calculateAverageHeightDifference(dragons, team2: raptors)
+        if (sharkRaptorDif <= 1.5 && sharkDragonDif <= 1.5 && dragonRaptorDif <= 1.5) {
+            teamsNotEqual = false
+        } else {
+            if (sharkRaptorDif >= 1.5) {
+                let newTeams = rearrangeTeamMembers(sharks, team2: raptors)
+                sharks = newTeams[0]
+                raptors = newTeams[1]
+            }
+            if (sharkDragonDif >= 1.5) {
+                let newTeams = rearrangeTeamMembers(sharks, team2: dragons)
+                sharks = newTeams[0]
+                dragons = newTeams[1]
+            }
+            if (dragonRaptorDif >= 1.5) {
+                let newTeams = rearrangeTeamMembers(dragons, team2: raptors)
+                dragons = newTeams[0]
+                raptors = newTeams[1]
+            }
+        }
+
+    }
+    
+}
+
+sortTeamsByHeight(league)
+// for debugging purposes
+calculateAverageHeight(sharks)
+calculateAverageHeight(raptors)
+calculateAverageHeight(dragons)
 
 // takes in a player item in the dictionary and generates the content body of
 // a letter.
@@ -87,7 +179,7 @@ func generateLetter(player: [String:String], team: String) -> String {
     // scope of switch statements doesn't allow us to define it later.
     var letterBody: String = "Dear \(player["guardians"]!), congratulations! Your child, \(player["name"]!), has been selected to play for the \(team) in this year's soccer league!"
     switch team {
-    // there was a lot of repetition of strings, so why not extract that to our 
+        // there was a lot of repetition of strings, so why not extract that to our
     // declaration and use some good ol' concatenation for the only part that changed?
     case "Sharks":
         letterBody += " Our first practice is on March 17th at 3pm."
@@ -102,4 +194,15 @@ func generateLetter(player: [String:String], team: String) -> String {
     return letterBody
 }
 
-generateLetter(league[4], team: "Sharks")
+func printLetters(team:[[String:String]], name: String) {
+    for player in team {
+        print(generateLetter(player, team: name))
+    }
+}
+
+sharks
+dragons
+raptors
+printLetters(sharks, name: "Sharks")
+printLetters(dragons, name: "Dragons")
+printLetters(raptors, name: "Raptors")
